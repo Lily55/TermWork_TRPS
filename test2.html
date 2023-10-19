@@ -1,0 +1,157 @@
+
+<!DOCTYPE HTML>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Генерация логических выражений</title>
+    <script>
+        // Make the div with id 'mycell' a Sage cell
+        sagecell.makeSagecell({
+            inputLocation: '#mycell',
+            template: sagecell.templates.minimal,
+            evalButtonText: 'Начать решать'
+        });
+        // Make *any* div with class 'compute' a Sage cell
+        sagecell.makeSagecell({
+            inputLocation: 'div.compute',
+            evalButtonText: 'Evaluate'
+        });
+    </script>
+    <style>
+        td {
+            border: 1px solid black;
+            padding: 4px;
+            text-align: center;
+        }
+        thead {
+            font-weight: bold;
+        }
+        table {
+            border-spacing: 0;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+<h1>Генерация логических выражений</h1>
+
+<p>
+    Нажмите на кнопку «начать решать», чтобы получить доступ к генератору формул.
+</p>
+<p>
+    Вы можете выбрать количество переменных в формуле и количество операций.
+</p>
+
+<table>
+    <thead>
+    <tr>
+        <td>Логическая операция</td>
+        <td>Обозначение для наших занятий</td>
+        <td>Обозначение на этом сайте</td>
+    </tr>
+    </thead>
+    <tr>
+        <td>отрицание</td>
+        <td>$\overline{x}$ или $\overline{\mbox{длинное выражение}}$</td>
+        <td>$\neg$</td>
+    </tr>
+    <tr>
+        <td>логическое или</td>
+        <td>$\vee$</td>
+        <td>$\vee$</td>
+    </tr>
+    <tr>
+        <td>логическое и</td>
+        <td>$\cdot$ или ничего (как умножение)</td>
+        <td>$\wedge$</td>
+    </tr>
+    <tr>
+        <td>исключающее или</td>
+        <td>${}+{}$</td>
+        <td>$\oplus$</td>
+    </tr>
+    <tr>
+        <td>импликация</td>
+        <td>$\Rightarrow$</td>
+        <td>$\rightarrow$</td>
+    </tr>
+    <tr>
+        <td>равносильность</td>
+        <td>$\Leftrightarrow$</td>
+        <td>$\leftrightarrow$</td>
+    </tr>
+</table>
+
+<p>
+    Обратите внимание, что в таблице истинности порядок переменных может быть не $a, b, c$.
+</p>
+
+
+<div id="mycell">
+    <script type="text/x-sage">
+f = propcalc.formula("a&((b|c)^a->c)<->b")
+g = propcalc.formula("a|a")
+
+from random import choice, sample
+import sage.logic.logicparser as logicparser
+
+operations = ['|', '&', '^', '->', '<->','^']
+def create_formula(ops, variables):
+    if ops == 0:
+        v = sample(variables, 1)
+        result = v
+        var_set = set(v)
+    else:
+        left_ops = choice(range(ops))
+        right_ops = ops - 1 - left_ops
+        f1, s1 = create_formula(left_ops, variables)
+        f2, s2 = create_formula(right_ops, variables)
+        result = [choice(operations), f1, f2]
+        var_set = s1 | s2
+
+    if choice(range(5)) == 0:
+        result = ['~', result]
+
+    return result, var_set
+
+@interact
+def _(
+        variables=selector([1, 2, 3], label="Количество переменных", buttons=True),
+        size=selector([2, 3, 4, 5, 6], label="Количество операций", buttons=True),
+        auto_update=False
+    ):
+        all_vars = ['a', 'b', 'c'][:variables]
+        while True:
+            f_list, var_set = create_formula(size, all_vars)
+            if len(var_set) == variables:
+                break
+
+        f_string = logicparser.recover_formula(f_list)
+        f = propcalc.formula(f_string)
+        show(f)
+        tt = f.truthtable()
+        table_header, *table_rows = tt.get_table_list()
+        # inds = {v: table_header.index(v) for v in all_vars}
+        inds = {all_vars[i]: i for i in range(len(all_vars))}
+        # print(' '.join(all_vars + ['f']))
+        print(' '.join(table_header + ['f']))
+        for table_row in table_rows:
+            str_row = ['1' if table_row[inds[v]] else '0' for v in all_vars]
+            str_row.append('1' if table_row[variables] else '0')
+            print(' '.join(str_row))
+
+    </script>
+</div>
+
+<!--<h2>Your own computations</h2>
+Type your own Sage computation below and click &ldquo;Evaluate&rdquo;.
+<div class="compute"><script type="text/x-sage">plot(sin(x), (x, 0, 2*pi))</script></div>
+<div class="compute"><script type="text/x-sage">
+@interact
+def f(n=(0,10)):
+    print(2^n)
+</script></div>
+-->
+</body>
+</html>
