@@ -10,9 +10,6 @@ class Node{
     }
 }
 
-
-let inputStack = ["A", "B", "C", "*", "+", "D", "XOR"];
-
 class BooleanTree{
     constructor(){
         this.root = null;
