@@ -104,11 +104,21 @@ class BooleanTree{
 
 }
 
+var elem = document.getElementById('final'); // defer в html для асинхронной обработки
+
+function print(finalString){
+    elem.innerHTML = finalString;
+}
+
 function newTree(number){
     const myTree = new BooleanTree(); // говнокод, надо сделать через document
     myTree.createTree(number);
+
     console.log(myTree);
     console.log(myTree.getString())
+    print(myTree.getString())
+
+
 }
 
 
