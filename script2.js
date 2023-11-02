@@ -96,8 +96,6 @@ class BooleanTree{
         currentString = this.setBrackets(currentString,currentNode.left);
         currentString = this.setBrackets(currentString,currentNode.right);
 
-        console.log(currentString);
-
         for(let i = 0; i < currentString.length; i++)
             finalString[i] = currentString[i].value;
 
@@ -106,8 +104,11 @@ class BooleanTree{
 
 }
 
-const myTree = new BooleanTree();
-myTree.createTree(7);
-console.log(myTree);
-console.log(myTree.getString())
+function newTree(number){
+    const myTree = new BooleanTree(); // говнокод, надо сделать через document
+    myTree.createTree(number);
+    console.log(myTree);
+    console.log(myTree.getString())
+}
+
 

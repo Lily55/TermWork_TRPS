@@ -10,6 +10,7 @@
             border-radius: 10px;
             border-spacing: 0;
             text-align: center;
+            border: 10px;
             }
             th {
             background: #BCEBDD;
@@ -46,21 +47,49 @@
             border-right: none;
             }
 
-            #numb{
+            .vertical-container {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
                 font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+                flex-wrap: wrap;
+                gap: 1em;
             }
+
+            .vertical-container.horizontal-container{
+                flex-direction: row;
+                justify-content: space-evenly;
+                align-items: center;
+                
+            }
+
         </style>
     </head>
     <body style="margin: 50px">
-        <div id = "numb"> Количество переменных в формуле:
-            <table>
-                <tbody>
-                    <tr>
-                        <td>3</td>
-                        <td>4</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div  class = "vertical-container">
+            <div class="vertical-container horizontal-container"> Количество переменных в формуле: 
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>3</td>
+                            <td>4</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="vertical-container horizontal-container"> Количество операций в формуле: 
+                <table>
+                    <tbody>
+                        <tr>
+                            <td onclick="newTree(2)">2</td>
+                            <td onclick="newTree(3)">3</td>
+                            <td onclick="newTree(4)">4</td>
+                            <td onclick="newTree(5)">5</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     </body>
