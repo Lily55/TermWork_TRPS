@@ -1,4 +1,4 @@
-const operators = ["*", "+", "XOR", "<->", "|", "->"]; // добавить NOT обратно
+const operators = ["*", "+", "XOR", "<->", "|", "->", "NOT"]; // добавить NOT обратно
 const variables = ["A", "B", "C", "D"];
 const symbols = operators + variables;
 
@@ -20,7 +20,7 @@ class BooleanTree{
     createTree(numOperators){
         this.operations = numOperators;
         let queue = [];
-        let newNode = new Node(operators[Math.floor(Math.random() * operators.length)]);
+        let newNode = new Node(operators[Math.floor(Math.random() * (operators.length-1))]); // говнокод, но лень думать прост
         numOperators--;
         this.root = newNode;
         newNode.left = new Node(null);
@@ -29,7 +29,7 @@ class BooleanTree{
 
         while(numOperators){
             newNode = queue.shift();
-            newNode.value = operators[Math.floor(Math.random()*operators.length)];
+            newNode.value = operators[Math.floor(Math.random()*operators.length)]; 
             if(operators.includes(newNode.value))
             {
                 if(newNode.value === "NOT")
@@ -57,7 +57,7 @@ class BooleanTree{
         let closeBracket = new Node(")");
         let currentIndex = currentString.indexOf(currentNode)
 
-        if(operators.includes(currentNode.value))
+        if(operators.includes(currentNode.value) && currentNode.value != "NOT")
         {
             currentString.splice(currentIndex,0,openBracket);
             currentIndex++;
@@ -70,6 +70,12 @@ class BooleanTree{
             currentIndex++;
             currentString.splice(currentIndex+1,0,currentNode.right);
             this.setBrackets(currentString,currentNode.left);
+            this.setBrackets(currentString,currentNode.right);
+        }
+
+        if(currentNode.left === null && currentNode.right != null)
+        {
+            currentString.splice(currentIndex+1,0,currentNode.right);
             this.setBrackets(currentString,currentNode.right);
         }
 
