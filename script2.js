@@ -1,4 +1,4 @@
-const operators = ["*", "+", "XOR", "<->", "|", "->", "NOT"]; // добавить NOT обратно
+const operators = ["*", "+", "XOR", "<->", "|", "->", "NOT"]; // добавить NOT обратно 
 const variables = ["A", "B", "C", "D"];
 const symbols = operators + variables;
 
@@ -20,12 +20,20 @@ class BooleanTree{
     createTree(numOperators){
         this.operations = numOperators;
         let queue = [];
-        let newNode = new Node(operators[Math.floor(Math.random() * (operators.length-1))]); // говнокод, но лень думать прост
+        let newNode = new Node(operators[Math.floor(Math.random() * operators.length)]);
         numOperators--;
         this.root = newNode;
-        newNode.left = new Node(null);
-        newNode.right = new Node(null);
-        queue.push(newNode.left, newNode.right);
+        if(newNode.value === "NOT")
+        {
+            newNode.right = new Node(null);
+            queue.push(newNode.right)
+        }
+        else {
+            newNode.left = new Node(null); // сделать проверку на NOT, исправив говнокод
+            newNode.right = new Node(null);
+            queue.push(newNode.left, newNode.right);
+        }
+
 
         while(numOperators){
             newNode = queue.shift();
@@ -90,10 +98,17 @@ class BooleanTree{
         let currentNode = this.root;
 
         currentString.push(currentNode)
-        currentString.unshift(currentNode.left);
+        if(currentNode.left != null)
+        {
+            currentString.unshift(currentNode.left);
+        }
+        
         currentString.push(currentNode.right);
 
-        currentString = this.setBrackets(currentString,currentNode.left);
+        if(currentNode.left != null){
+            currentString = this.setBrackets(currentString,currentNode.left);
+        }
+        
         currentString = this.setBrackets(currentString,currentNode.right);
 
         for(let i = 0; i < currentString.length; i++)
@@ -111,6 +126,7 @@ function print(finalString){
 }
 
 function newTree(number){
+    let numVariables = document.getElementsByName('variable')
     const myTree = new BooleanTree(); // говнокод, надо сделать через document
     myTree.createTree(number);
 
