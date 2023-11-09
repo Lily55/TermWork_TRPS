@@ -140,7 +140,7 @@ class BooleanTree extends Tree{
     }
 
 
-
+    // Функция проставляет значения переменных
     setVariables(numVariables){
         if(numVariables === 3)
         {
@@ -182,11 +182,75 @@ class BooleanTree extends Tree{
     }
 
     //->
+    resultOfImplication(currentNode, iterationNumber){
+        /*X  Y  F
+          0  0  1
+          0  1  1
+          1  0  0
+          1  1  1
+           */
+
+        let X = usedVariables.includes(currentNode.left.value) ? this.varTable[currentNode.left.value][iterationNumber] : currentNode.left.value;
+        let Y = usedVariables.includes(currentNode.right.value) ? this.varTable[currentNode.right.value][iterationNumber] : currentNode.right.value;
+
+        if(X === 0 & Y === 0) return 1;
+        if(X === 0 & Y === 1) return 1;
+        if(X === 1 & Y === 0) return 0;
+        if(X === 1 & Y === 1) return 1;
+    }
 
     // |
+    resultOfShtrih(currentNode, iterationNumber){
+        /*X  Y  F
+          0  0  1
+          0  1  1
+          1  0  1
+          1  1  0
+           */
+
+        let X = usedVariables.includes(currentNode.left.value) ? this.varTable[currentNode.left.value][iterationNumber] : currentNode.left.value;
+        let Y = usedVariables.includes(currentNode.right.value) ? this.varTable[currentNode.right.value][iterationNumber] : currentNode.right.value;
+
+        if(X === 0 & Y === 0) return 1;
+        if(X === 0 & Y === 1) return 1;
+        if(X === 1 & Y === 0) return 1;
+        if(X === 1 & Y === 1) return 0;
+    }
 
     // <->
+    resultOfEkviv(currentNode, iterationNumber){
+        /*X  Y  F
+          0  0  1
+          0  1  0
+          1  0  0
+          1  1  1
+           */
 
+        let X = usedVariables.includes(currentNode.left.value) ? this.varTable[currentNode.left.value][iterationNumber] : currentNode.left.value;
+        let Y = usedVariables.includes(currentNode.right.value) ? this.varTable[currentNode.right.value][iterationNumber] : currentNode.right.value;
+
+        if(X === 0 & Y === 0) return 1;
+        if(X === 0 & Y === 1) return 0;
+        if(X === 1 & Y === 0) return 0;
+        if(X === 1 & Y === 1) return 1;
+    }
+
+    resultOfPirsArrow(currentNode, iterationNumber){
+        /*X  Y  F
+          0  0  1
+          0  1  0
+          1  0  0
+          1  1  0
+           */
+
+        let X = usedVariables.includes(currentNode.left.value) ? this.varTable[currentNode.left.value][iterationNumber] : currentNode.left.value;
+        let Y = usedVariables.includes(currentNode.right.value) ? this.varTable[currentNode.right.value][iterationNumber] : currentNode.right.value;
+
+        if(X === 0 & Y === 0) return 1;
+        if(X === 0 & Y === 1) return 0;
+        if(X === 1 & Y === 0) return 0;
+        if(X === 1 & Y === 1) return 0;
+    }
 
 }
 
