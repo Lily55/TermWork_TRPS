@@ -1,7 +1,8 @@
-const operators = [ "XOR"]; // "*", "+", "<->", "|", "->", "NOT",
-const neededOperators = ["*", "+"];
-const variables = ["A", "B", "C", "D"];
-const symbols = operators + variables;
+const operators = ["*", "+", "<->", "|", "->", "NOT", "XOR"]; // 
+// const neededOperators = ["*", "+"];
+const usedVariables = ["A", "B", "C", "D"];
+const symbols = operators + usedVariables;
+const boolValues = [0,1];
 
 class Node{
     constructor(value){
@@ -11,31 +12,33 @@ class Node{
     }
 }
 
-// class LittleTree extends Node{
-//     constructor(){
-//         this.root = null;
-//         this.left = null;
-//         this.right = null;
-//     }
-// }
-
 
 class Tree{
 
     constructor(){
         this.root = null;
         this.operations = null;
+        this.variables = null;
+        
     }
 }
 
+// class varTable{
+//     constructor(){
+
+//     }
+// }
 
 class BooleanTree extends Tree{
     constructor(){
         super();
+        this.varTable = null;
     }
 
     //Функция собирает дерево
-    createTree(numOperators){
+    createTree(numVariables, numOperators){
+        this.variables = numVariables;
+        this.setVariables(this.variables);
         this.operations = numOperators;
         let queue = [];
         let newNode = new Node(operators[Math.floor(Math.random() * operators.length)]);
@@ -73,7 +76,7 @@ class BooleanTree extends Tree{
 
         for(let i = 0; i < queue.length; i++)
         {
-            queue[i].value = variables[Math.floor(Math.random()*variables.length)];
+            queue[i].value = usedVariables[Math.floor(Math.random()*(usedVariables.length-1))]; //переделать
         }
     }
 
@@ -83,7 +86,7 @@ class BooleanTree extends Tree{
         let closeBracket = new Node(")");
         let currentIndex = currentString.indexOf(currentNode)
 
-        if(neededOperators.includes(currentNode.value) && currentNode.value != "NOT")
+        if(operators.includes(currentNode.value) && currentNode.value != "NOT")
         {
             currentString.splice(currentIndex,0,openBracket);
             currentIndex++;
@@ -136,60 +139,54 @@ class BooleanTree extends Tree{
         return finalString.join(' ');
     }
 
-    // // функция преобразует базис Жегалкина в булевую алгебру
-    // fromZhegToBool(){
-    //     if(this.root === null) return false
-    // }
 
-    // // Раскрытие операций (Стрелка Пирса, штрих Шеффера и тд)
-    fromXORToBool(oldNode){
-        // A XOR B = NOT A * B + A * NOT B = (NOT A + NOT B) * (A + B)
 
-        let newRoot = new Node("+");
-
-        newRoot.left = new Node("*");
-        newRoot.right = new Node("*");
-
-        newRoot.left.left = new Node("NOT");
-        newRoot.left.left.right = structuredClone(oldNode.left);
-        newRoot.left.right = structuredClone(oldNode.right);
-
-        // newRoot.left.left = structuredClone(oldNode.left);
-        // newRoot.left.right = structuredClone(oldNode.right);
-
-        newRoot.right.right = new Node("NOT");
-        newRoot.right.right.right = structuredClone(oldNode.right);
-        newRoot.right.left = structuredClone(oldNode.left);
-
-        return newRoot;
-    }
-
-    printTree(currentNode){
-        if(currentNode.left != null && currentNode.right != null)
+    setVariables(numVariables){
+        if(numVariables === 3)
         {
-            //console.log(currentNode.value)
-            if(currentNode.left.value === "XOR")
-            currentNode.left = this.fromXORToBool(currentNode.left)
-            this.printTree(currentNode.left)
+            this.varTable = {
+                A: [0, 0, 0, 0, 1, 1, 1, 1],
+                B: [0, 0, 1, 1, 0, 0, 1, 1],
+                C: [0, 1, 0, 1, 0, 1, 0, 1]
+            }
+        }
 
-            if(currentNode.right.value === "XOR")
-            currentNode.right = this.fromXORToBool(currentNode.right)            
-            this.printTree(currentNode.right)
+        if(numVariables === 4)
+        {
+            this.varTable = {
+                A: [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+                B: [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1],
+                C: [0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1],
+                D: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1]
+            }
         }
     }
 
-    toDNF(){
+    // XOR
+    resultOfXOR(currentNode, iterationNumber){
+        /*X  Y  F
+          0  0  0
+          0  1  1
+          1  0  1
+          1  1  0
+           */
+        
+        
+            let X = usedVariables.includes(currentNode.left.value) ? this.varTable[currentNode.left.value][iterationNumber] : currentNode.left.value;
+            let Y = usedVariables.includes(currentNode.right.value) ? this.varTable[currentNode.right.value][iterationNumber] : currentNode.right.value;
 
-
-        let currentNode = this.root
-
-        this.printTree(currentNode)
-
-        if(this.root.value === "XOR")
-        this.root = this.fromXORToBool(this.root)
-
-
+            if(X === 0 & Y === 0) return 0;
+            if(X === 0 & Y === 1) return 1;
+            if(X === 1 & Y === 0) return 1;
+            if(X === 1 & Y === 1) return 0;
     }
+
+    //->
+
+    // |
+
+    // <->
+
 
 }
 
@@ -199,37 +196,30 @@ function print(finalString){
     elem.innerHTML = finalString;
 }
 
-// function treeFromTrees(){
-//     const ourTree = new Node("+");
 
-//     ourTree.left = new BooleanTree;
-//     ourTree.right = new BooleanTree;
 
-//     ourTree.left.createTree(2);
-//     ourTree.right.createTree(2);
-
-//     const leftString = ourTree.left.getString();
-//     const rightString = ourTree.right.getString();
-
-//     const finalString = "(" + " " + leftString + " " + ")" + " " + ourTree.value + " " + "(" + " " + rightString + " " + ")"; 
-
-//     return finalString;
-    
-// }
-
-function newTree(number){
+function newTree(numberOperations){
     let numVariables = document.getElementsByName('variable')
     const myTree = new BooleanTree(); // говнокод, надо сделать через document
-    myTree.createTree(number); // исправить
+    myTree.createTree(3, numberOperations); // исправить
+
+    let newTree = new BooleanTree();
+    newTree.numVariables = 3;
+    newTree.setVariables(3);
+    newTree.root = new Node("XOR");
+    newTree.root.left = new Node("A");
+    newTree.root.right = new Node("B");
+
+    for (let i=0; i < 8; i++)
+    console.log(newTree.resultOfXOR(newTree.root,i));
+
+    // console.log(Object.keys(myTree.varTable));
+    // console.log(Object.values(myTree.varTable));
+    // console.log(myTree.varTable["A"][7]);
 
     console.log(myTree);
     console.log(myTree.getString());
-
-    myTree.toDNF();
-
-    console.log(myTree);
-    console.log(myTree.getString());
-    // print(myTree.getString())
+    print(myTree.getString())
 
 
 }
