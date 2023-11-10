@@ -1,6 +1,6 @@
 const operators = ["+","<->", "|", "->", "*", "XOR"]; // "NOT",  "<->", "|", "->", 
 // const neededOperators = ["*", "+"];
-const usedVariables = ["A", "B", "C", "D"];
+const usedVariables = ["A", "B", "C", "D"];// 
 const symbols = operators + usedVariables;
 const boolValues = [0,1];
 
@@ -17,22 +17,18 @@ class Tree{
 
     constructor(){
         this.root = null;
-        this.operations = null;
-        this.variables = null;
+
         
     }
 }
 
-// class varTable{
-//     constructor(){
-
-//     }
-// }
-
 class BooleanTree extends Tree{
     constructor(){
         super();
+        this.operations = null;
+        this.variables = null;
         this.varTable = null;
+        this.finalResult = [];
     }
 
     //Функция собирает дерево
@@ -72,6 +68,11 @@ class BooleanTree extends Tree{
                     queue.push(newNode.left, newNode.right);
                 }
             }
+        }
+
+        if(this.variables === 3)
+        {
+            
         }
 
         for(let i = 0; i < queue.length; i++)
@@ -141,12 +142,27 @@ class BooleanTree extends Tree{
 
     // Функция идёт по всему дереву
     resultOfFunction(Tree){
+        let boolTable = document.getElementById("boolTable");
+        boolTable.innerHTML += "<p>" + usedVariables.join(' ') + " " + "|" + " " + "F" + "</p>"
         let iterations = 0;
         let finalMass = [];
         let clonnedTree = structuredClone(Tree);
 
-        // if(this.numVariables === 3)
+        if(clonnedTree.variables === 3)
         while(iterations < 8)
+        {
+            this.printTree(clonnedTree.root, iterations, finalMass);          
+            console.log(finalMass);
+            this.finalResult.push(finalMass[finalMass.length - 1]);
+            console.log(this.finalResult);
+            boolTable.innerHTML += "<p>" + this.varTable["A"][iterations] + " " + this.varTable["B"][iterations] + " " + this.varTable["C"][iterations] + " " + "|" + " " + finalMass.pop() + "</p>";
+            iterations++;
+            finalMass = [];
+            clonnedTree = structuredClone(Tree);
+        }
+
+        if(clonnedTree.variables === 4) // сделать для 4 переменных
+        while(iterations < 16)
         {
             this.printTree(clonnedTree.root, iterations, finalMass);
             iterations++;
@@ -157,6 +173,7 @@ class BooleanTree extends Tree{
 
     }
 
+    // Рекурсивная функция, проходится по нодам и листьям, выполняет логические операции
     printTree(currentNode, iterations, finalMass){
         if(currentNode.left != null & currentNode.right != null)
         {
