@@ -1,4 +1,4 @@
-const operators = ["*", "+", "<->", "|", "->", "NOT", "XOR"]; // 
+const operators = ["+","<->", "|", "->", "*", "XOR"]; // "NOT",  "<->", "|", "->", 
 // const neededOperators = ["*", "+"];
 const usedVariables = ["A", "B", "C", "D"];
 const symbols = operators + usedVariables;
@@ -139,6 +139,68 @@ class BooleanTree extends Tree{
         return finalString.join(' ');
     }
 
+    // Функция идёт по всему дереву
+    resultOfFunction(Tree){
+        let iterations = 0;
+        let finalMass = [];
+        let clonnedTree = structuredClone(Tree);
+
+        // if(this.numVariables === 3)
+        while(iterations < 8)
+        {
+            this.printTree(clonnedTree.root, iterations, finalMass);
+            iterations++;
+            console.log(finalMass);
+            finalMass = [];
+            clonnedTree = structuredClone(Tree);
+        }
+
+    }
+
+    printTree(currentNode, iterations, finalMass){
+        if(currentNode.left != null & currentNode.right != null)
+        {
+            this.printTree(currentNode.left, iterations, finalMass);
+            this.printTree(currentNode.right, iterations, finalMass);
+        }
+ 
+        if(currentNode.value === "XOR"){
+            currentNode.value = this.resultOfXOR(currentNode, iterations);
+            finalMass.push(currentNode.value);
+        }
+
+        if(currentNode.value === "*"){
+            currentNode.value = this.resultOfConuction(currentNode, iterations);
+            finalMass.push(currentNode.value);
+        }
+
+        if(currentNode.value === "+"){
+            currentNode.value = this.resultOfDisunction(currentNode, iterations);
+            finalMass.push(currentNode.value);
+        }
+
+        if(currentNode.value === "<->"){
+            currentNode.value = this.resultOfEkviv(currentNode, iterations);
+            finalMass.push(currentNode.value);
+        }
+
+        if(currentNode.value === "->"){
+            currentNode.value = this.resultOfImplication(currentNode, iterations);
+            finalMass.push(currentNode.value);
+        }
+
+        if(currentNode.value === "|"){
+            currentNode.value = this.resultOfShtrih(currentNode, iterations);
+            finalMass.push(currentNode.value);
+        }
+
+        if(currentNode.value === "|>"){
+            currentNode.value = this.resultOfPirsArrow(currentNode, iterations);
+            finalMass.push(currentNode.value);
+        }
+
+    }
+
 
     // Функция проставляет значения переменных
     setVariables(numVariables){
@@ -235,6 +297,7 @@ class BooleanTree extends Tree{
         if(X === 1 & Y === 1) return 1;
     }
 
+    // |>
     resultOfPirsArrow(currentNode, iterationNumber){
         /*X  Y  F
           0  0  1
@@ -252,6 +315,61 @@ class BooleanTree extends Tree{
         if(X === 1 & Y === 1) return 0;
     }
 
+    // *
+    resultOfConuction(currentNode, iterationNumber){
+        /*X  Y  F
+          0  0  0
+          0  1  0
+          1  0  0
+          1  1  1
+           */
+
+        let X = usedVariables.includes(currentNode.left.value) ? this.varTable[currentNode.left.value][iterationNumber] : currentNode.left.value;
+        let Y = usedVariables.includes(currentNode.right.value) ? this.varTable[currentNode.right.value][iterationNumber] : currentNode.right.value;
+
+        if(X === 0 & Y === 0) return 0;
+        if(X === 0 & Y === 1) return 0;
+        if(X === 1 & Y === 0) return 0;
+        if(X === 1 & Y === 1) return 1;
+    }
+
+    // +
+    resultOfDisunction(currentNode, iterationNumber){
+        /*X  Y  F
+          0  0  0
+          0  1  1
+          1  0  1
+          1  1  1
+           */
+
+        let X = usedVariables.includes(currentNode.left.value) ? this.varTable[currentNode.left.value][iterationNumber] : currentNode.left.value;
+        let Y = usedVariables.includes(currentNode.right.value) ? this.varTable[currentNode.right.value][iterationNumber] : currentNode.right.value;
+
+        if(X === 0 & Y === 0) return 0;
+        if(X === 0 & Y === 1) return 1;
+        if(X === 1 & Y === 0) return 1;
+        if(X === 1 & Y === 1) return 1;
+    }
+
+    // // NOT
+    // resultOfNOT(currentNode, iterationNumber){
+    //     /*X  Y  F
+    //       0  0  1
+    //       0  1  1
+    //       1  0  0
+    //       1  1  1
+    //        */
+
+    //     let X = usedVariables.includes(currentNode.left.value) ? this.varTable[currentNode.left.value][iterationNumber] : currentNode.left.value;
+    //     let Y = usedVariables.includes(currentNode.right.value) ? this.varTable[currentNode.right.value][iterationNumber] : currentNode.right.value;
+
+
+    //     if(X === 0 & Y === 0) return 1;
+    //     if(X === 0 & Y === 1) return 1;
+    //     if(X === 1 & Y === 0) return 0;
+    //     if(X === 1 & Y === 1) return 1;
+    // }
+
 }
 
 var elem = document.getElementById('final'); // defer в html для асинхронной обработки
@@ -267,19 +385,19 @@ function newTree(numberOperations){
     const myTree = new BooleanTree(); // говнокод, надо сделать через document
     myTree.createTree(3, numberOperations); // исправить
 
-    let newTree = new BooleanTree();
-    newTree.numVariables = 3;
-    newTree.setVariables(3);
-    newTree.root = new Node("XOR");
-    newTree.root.left = new Node("A");
-    newTree.root.right = new Node("B");
+    // let newTree = new BooleanTree();
+    // newTree.numVariables = 3;
+    // newTree.setVariables(3);
+    // newTree.root = new Node("XOR");
+    // newTree.root.left = new Node("A");
+    // newTree.root.right = new Node("B");
 
-    for (let i=0; i < 8; i++)
-    console.log(newTree.resultOfXOR(newTree.root,i));
+    myTree.resultOfFunction(myTree);
 
-    // console.log(Object.keys(myTree.varTable));
-    // console.log(Object.values(myTree.varTable));
-    // console.log(myTree.varTable["A"][7]);
+    // for (let i=0; i < 8; i++)
+    // console.log(newTree.resultOfShtrih(newTree.root,i));
+
+
 
     console.log(myTree);
     console.log(myTree.getString());
