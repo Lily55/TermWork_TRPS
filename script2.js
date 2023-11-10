@@ -1,4 +1,4 @@
-const operators = ["+","<->", "|", "->", "*", "XOR"]; // "NOT",  "<->", "|", "->", 
+const operators = ["NOT","+","<->", "|", "->", "*", "XOR"]; // "NOT",  "<->", "|", "->", 
 // const neededOperators = ["*", "+"];
 const usedVariables = ["A", "B", "C", "D"];// 
 const symbols = operators + usedVariables;
@@ -72,13 +72,28 @@ class BooleanTree extends Tree{
 
         if(this.variables === 3)
         {
-            
+            let k = 0;
+            for(let i = 0; i < queue.length; i++)
+            {
+                if(k === 3)
+                k = 0;
+                queue[i].value = usedVariables[k];
+                k++;
+            }
         }
 
-        for(let i = 0; i < queue.length; i++)
+        if(this.variables === 4)
         {
-            queue[i].value = usedVariables[Math.floor(Math.random()*(usedVariables.length-1))]; //переделать
+            let k = 0;
+            for(let i = 0; i < queue.length; i++)
+            {
+                if(k === 4)
+                k = 0;
+                queue[i].value = usedVariables[k];
+                k++;
+            }
         }
+
     }
 
     //Функция ставит скобки
@@ -143,7 +158,10 @@ class BooleanTree extends Tree{
     // Функция идёт по всему дереву
     resultOfFunction(Tree){
         let boolTable = document.getElementById("boolTable");
-        boolTable.innerHTML += "<p>" + usedVariables.join(' ') + " " + "|" + " " + "F" + "</p>"
+        if(this.variables === 3)
+        boolTable.innerHTML = "<p>" + usedVariables.slice(0,3).join(' ') + " " + "|" + " " + "F" + "</p>";
+        if(this.variables === 4)
+        boolTable.innerHTML = "<p>" + usedVariables.join(' ') + " " + "|" + " " + "F" + "</p>";
         let iterations = 0;
         let finalMass = [];
         let clonnedTree = structuredClone(Tree);
@@ -164,9 +182,12 @@ class BooleanTree extends Tree{
         if(clonnedTree.variables === 4) // сделать для 4 переменных
         while(iterations < 16)
         {
-            this.printTree(clonnedTree.root, iterations, finalMass);
-            iterations++;
+            this.printTree(clonnedTree.root, iterations, finalMass);          
             console.log(finalMass);
+            this.finalResult.push(finalMass[finalMass.length - 1]);
+            console.log(this.finalResult);
+            boolTable.innerHTML += "<p>" + this.varTable["A"][iterations] + " " + this.varTable["B"][iterations] + " " + this.varTable["C"][iterations] + " " + this.varTable["D"][iterations] + " " + "|" + " " + finalMass.pop() + "</p>";
+            iterations++;
             finalMass = [];
             clonnedTree = structuredClone(Tree);
         }
@@ -178,6 +199,11 @@ class BooleanTree extends Tree{
         if(currentNode.left != null & currentNode.right != null)
         {
             this.printTree(currentNode.left, iterations, finalMass);
+            this.printTree(currentNode.right, iterations, finalMass);
+        }
+
+        if(currentNode.left === null & currentNode.right != null)
+        {
             this.printTree(currentNode.right, iterations, finalMass);
         }
  
@@ -213,6 +239,11 @@ class BooleanTree extends Tree{
 
         if(currentNode.value === "|>"){
             currentNode.value = this.resultOfPirsArrow(currentNode, iterations);
+            finalMass.push(currentNode.value);
+        }
+
+        if(currentNode.value === "NOT"){
+            currentNode.value = this.resultOfNOT(currentNode, iterations);
             finalMass.push(currentNode.value);
         }
 
@@ -368,24 +399,18 @@ class BooleanTree extends Tree{
         if(X === 1 & Y === 1) return 1;
     }
 
-    // // NOT
-    // resultOfNOT(currentNode, iterationNumber){
-    //     /*X  Y  F
-    //       0  0  1
-    //       0  1  1
-    //       1  0  0
-    //       1  1  1
-    //        */
+    // NOT
+    resultOfNOT(currentNode, iterationNumber){
+        /*X  F  
+          0  1
+          1  0
+           */
 
-    //     let X = usedVariables.includes(currentNode.left.value) ? this.varTable[currentNode.left.value][iterationNumber] : currentNode.left.value;
-    //     let Y = usedVariables.includes(currentNode.right.value) ? this.varTable[currentNode.right.value][iterationNumber] : currentNode.right.value;
+        let X = usedVariables.includes(currentNode.right.value) ? this.varTable[currentNode.right.value][iterationNumber] : currentNode.right.value;
 
-
-    //     if(X === 0 & Y === 0) return 1;
-    //     if(X === 0 & Y === 1) return 1;
-    //     if(X === 1 & Y === 0) return 0;
-    //     if(X === 1 & Y === 1) return 1;
-    // }
+        if(X === 0) return 1;
+        if(X === 1) return 0;
+    }
 
 }
 
@@ -400,7 +425,7 @@ function print(finalString){
 function newTree(numberOperations){
     let numVariables = document.getElementsByName('variable')
     const myTree = new BooleanTree(); // говнокод, надо сделать через document
-    myTree.createTree(3, numberOperations); // исправить
+    myTree.createTree(4, numberOperations); // исправить
 
     // let newTree = new BooleanTree();
     // newTree.numVariables = 3;
