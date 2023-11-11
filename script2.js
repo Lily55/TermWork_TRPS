@@ -249,6 +249,51 @@ class BooleanTree extends Tree{
 
     }
 
+    //функция, которая преобразует в СДНФ по таблице истинности
+    toSDNF(){
+        let finalSDNF = [];
+        for(let i = 0; i < this.finalResult.length; i++)
+        {
+            if(this.finalResult[i] === 1)
+            finalSDNF.push(this.disunction(i));
+        }
+
+        return finalSDNF.join(' + ');
+    }
+
+    disunction(index){
+        let result = [];
+        let currentVar = null;
+        for(let k = 0; k < this.variables; k++)
+        {
+            currentVar = this.varTable[usedVariables[k]][index] === 0 ? "NOT " + usedVariables[k] : usedVariables[k];
+            result.push(currentVar);
+        }
+        return result.join('*');
+    }
+
+    //функция, которая преобразует в СКНФ по таблице истинности
+    toSKNF(){
+        let finalSDNF = [];
+        for(let i = 0; i < this.finalResult.length; i++)
+        {
+            if(this.finalResult[i] === 0)
+            finalSDNF.push("("+ this.conunction(i)+")");
+        }
+
+        return finalSDNF.join(' * ');
+    }
+
+    conunction(index){
+        let result = [];
+        let currentVar = null;
+        for(let k = 0; k < this.variables; k++)
+        {
+            currentVar = this.varTable[usedVariables[k]][index] === 1 ? "NOT " + usedVariables[k] : usedVariables[k];
+            result.push(currentVar);
+        }
+        return result.join('+');
+    }
 
     // Функция проставляет значения переменных
     setVariables(numVariables){
@@ -435,6 +480,10 @@ function newTree(numberOperations){
     // newTree.root.right = new Node("B");
 
     myTree.resultOfFunction(myTree);
+    let SDNF = document.getElementById('SDNF');
+    SDNF.innerHTML = myTree.toSDNF();
+    let SKNF = document.getElementById('SKNF');
+    SKNF.innerHTML = myTree.toSKNF();
 
     // for (let i=0; i < 8; i++)
     // console.log(newTree.resultOfShtrih(newTree.root,i));

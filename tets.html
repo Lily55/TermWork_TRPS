@@ -37,6 +37,13 @@
             td {
             padding: 10px 20px;
             background: #F8E391;
+            cursor: pointer;
+            }
+            td:hover {
+                border: 1px solid black;
+            }
+            td.active {
+                background: blue;
             }
             tr:last-child td:first-child {
             border-radius: 10px 0 0 10px;
@@ -92,9 +99,15 @@
                 </table>
             </div>
             
-
+            
             <div id="final"> </div>
             <div id="boolTable"></div>
+
+            <div>СДНФ:</div>
+            <div id="SDNF"></div>
+
+            <div>СКНФ:</div>
+            <div id="SKNF"></div>
         </div>
 
     </body>
