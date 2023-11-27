@@ -238,6 +238,9 @@ class BooleanTree extends Tree{
             finalSDNF.push(this.disunction(i));
         }
 
+        if(finalSDNF.length === 0)
+        return "СДНФ не существует"
+
         return finalSDNF.join(' + ');
     }
 
@@ -254,14 +257,17 @@ class BooleanTree extends Tree{
 
     //функция, которая преобразует в СКНФ по таблице истинности
     toSKNF(){
-        let finalSDNF = [];
+        let finalSKNF = [];
         for(let i = 0; i < this.finalResult.length; i++)
         {
             if(this.finalResult[i] === 0)
-            finalSDNF.push("("+ this.conunction(i)+")");
+            finalSKNF.push("("+ this.conunction(i)+")");
         }
 
-        return finalSDNF.join(' * ');
+        if(finalSKNF.length === 0)
+        return "СКНФ не существует"
+
+        return finalSKNF.join(' * ');
     }
 
     conunction(index){
@@ -463,32 +469,28 @@ function newTree(){ //umberOperators,
 
     console.log(numVariables);
     console.log(numberOperations);
+    
 
-    if(numVariables === null || numberOperations === null)
+    if(numVariables === null)
     {
-        alert("Вы не выбрали количество переменных или операций");
+        alert("Вы не выбрали количество переменных");
         return 0;
     }
+
+    if(numberOperations === null)
+    {
+        alert("Вы не выбрали количество операций");
+        return 0;
+    }
+
     const myTree = new BooleanTree(); // говнокод, надо сделать через document
     myTree.createTree(numVariables, numberOperations); // исправить
-
-    // let newTree = new BooleanTree();
-    // newTree.numVariables = 3;
-    // newTree.setVariables(3);
-    // newTree.root = new Node("XOR");
-    // newTree.root.left = new Node("A");
-    // newTree.root.right = new Node("B");
 
     myTree.resultOfFunction(myTree);
     let SDNF = document.getElementById('SDNF');
     SDNF.innerHTML = myTree.toSDNF();
     let SKNF = document.getElementById('SKNF');
     SKNF.innerHTML = myTree.toSKNF();
-
-    // for (let i=0; i < 8; i++)
-    // console.log(newTree.resultOfShtrih(newTree.root,i));
-
-
 
     console.log(myTree);
     console.log(myTree.getString());
