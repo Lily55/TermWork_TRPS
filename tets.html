@@ -3,7 +3,6 @@
     <head>
         <script defer src="script2.js"></script>
         <script defer src="scriptAnimation.js"></script>
-        <meta charset="UTF-8">
         <style>
             table {
             font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
@@ -40,7 +39,7 @@
             cursor: pointer;
             }
             td:hover {
-                border: 1px solid black;
+                background: #f1ce41;
             }
             td.active {
                 background: blue;
@@ -54,6 +53,19 @@
             tr td:last-child {
             border-right: none;
             }
+
+            input {
+                padding: 10px 20px;
+                background: #F8E391;
+                cursor: pointer;
+                border-radius: 10px 10px 10px 10px;
+                border: 0px;
+            }
+            input:hover {
+                background: #f1ce41;
+            }
+
+
 
             .vertical-container {
                 display: flex;
@@ -79,8 +91,8 @@
                 <table>
                     <tbody>
                         <tr>
-                            <td name="variable" onclick="newTree()">3</td>
-                            <td name="variable" onclick="newTree()">4</td>
+                            <td name="variable" onclick="setNumberVariables(3)">3</td>
+                            <td name="variable" onclick="setNumberVariables(4)">4</td>
                         </tr>
                     </tbody>
                 </table>
@@ -90,16 +102,17 @@
                 <table>
                     <tbody>
                         <tr>
-                            <td onclick="newTree(2)">2</td>
-                            <td onclick="newTree(3)">3</td>
-                            <td onclick="newTree(4)">4</td>
-                            <td onclick="newTree(5)">5</td>
+                            <td onclick="setNumberOperations(2)">2</td>
+                            <td onclick="setNumberOperations(3)">3</td>
+                            <td onclick="setNumberOperations(4)">4</td>
+                            <td onclick="setNumberOperations(5)">5</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             
-            
+            <div><input  type="button" style = "width: auto" value="Сгенерировать" onclick = "newTree()"></input></div>
+
             <div id="final"> </div>
             <div id="boolTable"></div>
 

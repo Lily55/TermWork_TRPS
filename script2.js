@@ -16,9 +16,7 @@ class Node{
 class Tree{
 
     constructor(){
-        this.root = null;
-
-        
+        this.root = null;       
     }
 }
 
@@ -70,28 +68,13 @@ class BooleanTree extends Tree{
             }
         }
 
-        if(this.variables === 3)
+        let k = 0;
+        for(let i = 0; i < queue.length; i++)
         {
-            let k = 0;
-            for(let i = 0; i < queue.length; i++)
-            {
-                if(k === 3)
-                k = 0;
-                queue[i].value = usedVariables[k];
-                k++;
-            }
-        }
-
-        if(this.variables === 4)
-        {
-            let k = 0;
-            for(let i = 0; i < queue.length; i++)
-            {
-                if(k === 4)
-                k = 0;
-                queue[i].value = usedVariables[k];
-                k++;
-            }
+            if(k === this.variables)
+            k = 0;
+            queue[i].value = usedVariables[k];
+            k++;
         }
 
     }
@@ -158,10 +141,7 @@ class BooleanTree extends Tree{
     // Функция идёт по всему дереву
     resultOfFunction(Tree){
         let boolTable = document.getElementById("boolTable");
-        if(this.variables === 3)
-        boolTable.innerHTML = "<p>" + usedVariables.slice(0,3).join(' ') + " " + "|" + " " + "F" + "</p>";
-        if(this.variables === 4)
-        boolTable.innerHTML = "<p>" + usedVariables.join(' ') + " " + "|" + " " + "F" + "</p>";
+        boolTable.innerHTML = "<p>" + usedVariables.slice(0,this.variables).join(' ') + " " + "|" + " " + "F" + "</p>";
         let iterations = 0;
         let finalMass = [];
         let clonnedTree = structuredClone(Tree);
@@ -459,18 +439,38 @@ class BooleanTree extends Tree{
 
 }
 
-var elem = document.getElementById('final'); // defer в html для асинхронной обработки
+ // defer в html для асинхронной обработки
 
 function print(finalString){
+    var elem = document.getElementById('final');
     elem.innerHTML = finalString;
+}
+
+var numVariables = null;
+var numberOperations = null;
+
+function setNumberVariables(number){
+    numVariables = number;
+}
+
+function setNumberOperations(number){
+    numberOperations = number;
 }
 
 
 
-function newTree(numberOperations){
-    let numVariables = document.getElementsByName('variable')
+function newTree(){ //umberOperators,
+
+    console.log(numVariables);
+    console.log(numberOperations);
+
+    if(numVariables === null || numberOperations === null)
+    {
+        alert("Вы не выбрали количество переменных или операций");
+        return 0;
+    }
     const myTree = new BooleanTree(); // говнокод, надо сделать через document
-    myTree.createTree(4, numberOperations); // исправить
+    myTree.createTree(numVariables, numberOperations); // исправить
 
     // let newTree = new BooleanTree();
     // newTree.numVariables = 3;
