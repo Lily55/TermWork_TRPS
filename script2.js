@@ -27,6 +27,8 @@ class BooleanTree extends Tree{
         this.variables = null;
         this.varTable = null;
         this.finalResult = [];
+        this.SDNF = null;
+        this.SKNF = null;
     }
 
     //Функция собирает дерево
@@ -76,6 +78,9 @@ class BooleanTree extends Tree{
             queue[i].value = usedVariables[k];
             k++;
         }
+
+        this.resultOfFunction(this);
+        console.log(this.finalResult);
 
     }
 
@@ -150,10 +155,10 @@ class BooleanTree extends Tree{
         while(iterations < 8)
         {
             this.printTree(clonnedTree.root, iterations, finalMass);          
-            console.log(finalMass);
+            // console.log(finalMass);
             this.finalResult.push(finalMass[finalMass.length - 1]);
-            console.log(this.finalResult);
-            boolTable.innerHTML += "<p>" + this.varTable["A"][iterations] + " " + this.varTable["B"][iterations] + " " + this.varTable["C"][iterations] + " " + "|" + " " + finalMass.pop() + "</p>";
+            // console.log(this.finalResult);
+            //boolTable.innerHTML += "<p>" + this.varTable["A"][iterations] + " " + this.varTable["B"][iterations] + " " + this.varTable["C"][iterations] + " " + "|" + " " + finalMass.pop() + "</p>";
             iterations++;
             finalMass = [];
             clonnedTree = structuredClone(Tree);
@@ -163,10 +168,10 @@ class BooleanTree extends Tree{
         while(iterations < 16)
         {
             this.printTree(clonnedTree.root, iterations, finalMass);          
-            console.log(finalMass);
+            // console.log(finalMass);
             this.finalResult.push(finalMass[finalMass.length - 1]);
-            console.log(this.finalResult);
-            boolTable.innerHTML += "<p>" + this.varTable["A"][iterations] + " " + this.varTable["B"][iterations] + " " + this.varTable["C"][iterations] + " " + this.varTable["D"][iterations] + " " + "|" + " " + finalMass.pop() + "</p>";
+            // console.log(this.finalResult);
+            //boolTable.innerHTML += "<p>" + this.varTable["A"][iterations] + " " + this.varTable["B"][iterations] + " " + this.varTable["C"][iterations] + " " + this.varTable["D"][iterations] + " " + "|" + " " + finalMass.pop() + "</p>";
             iterations++;
             finalMass = [];
             clonnedTree = structuredClone(Tree);
@@ -238,6 +243,8 @@ class BooleanTree extends Tree{
             finalSDNF.push(this.disunction(i));
         }
 
+        this.SDNF = finalSDNF;
+
         if(finalSDNF.length === 0)
         return "СДНФ не существует"
 
@@ -263,6 +270,8 @@ class BooleanTree extends Tree{
             if(this.finalResult[i] === 0)
             finalSKNF.push("("+ this.conunction(i)+")");
         }
+
+        this.SKNF = finalSKNF;
 
         if(finalSKNF.length === 0)
         return "СКНФ не существует"
@@ -465,6 +474,82 @@ function setNumberOperations(number){
 
 
 
+class TaskBoolTable{
+    constructor(Tree){
+        this.Tree = Tree;
+        this.taskBoolTable = document.createElement('div');
+        this.button = document.createElement('button');
+        this.button.innerHTML = "Проверить";
+        this.button.addEventListener('click', () => this.compareResult());
+        this.userAnswer = null;
+        this.right = document.createElement('p');
+        this.right.innerHTML = "Правильно";
+        this.right.style = "color: green";
+        this.wrong = document.createElement('p');
+        this.wrong.innerHTML = "Неправильно";
+        this.wrong.style = "color: red";
+    }
+
+    getTask(){
+        this.taskBoolTable.innerHTML += "<p>Заполните таблицу истинности:</p>"
+
+        this.taskBoolTable.innerHTML += "<p>" + usedVariables.slice(0,this.Tree.variables).join(' ') + " " + "|" + " " + "F" + "</p>";
+        let iterations = 0;
+        
+            if(this.Tree.variables === 3)
+            while(iterations < 8)
+            {
+                this.taskBoolTable.innerHTML += "<p>" + this.Tree.varTable["A"][iterations] + " " + this.Tree.varTable["B"][iterations] + " " + this.Tree.varTable["C"][iterations] + " " + "|" + " " + "<input class='boolTable' type='text'>" + "</p>";
+                iterations++;
+            }
+    
+            if(this.Tree.variables === 4) // сделать для 4 переменных
+            while(iterations < 16)
+            {
+                this.taskBoolTable.innerHTML += "<p>" + this.Tree.varTable["A"][iterations] + " " + this.Tree.varTable["B"][iterations] + " " + this.Tree.varTable["C"][iterations] + " " + this.Tree.varTable["D"][iterations] + " " + "|" + " " + "<input class='boolTable' type='text'>" + "</p>";
+                iterations++;
+            }
+
+            this.taskBoolTable.append(this.button);
+            // this.taskBoolTable.innerHTML += "</div>";
+            return this.taskBoolTable;
+    }
+
+    compareResult(){
+        let userAnswer = document.getElementsByClassName("boolTable");
+        //console.log(userAnswer[0].value);
+        let comparedResult = [];
+        for(let i = 0; i< userAnswer.length; i++){
+            comparedResult.push(parseInt(userAnswer[i].value));
+        }
+
+        let key = true;
+
+        for(let i = 0; i< userAnswer.length; i++){
+            if(comparedResult[i] != this.Tree.finalResult[i])
+            {
+                key = false;
+                break;
+            }
+        }
+
+        this.userAnswer = comparedResult;
+
+        console.log(comparedResult);
+
+        if(this.taskBoolTable.lastChild === this.right || this.taskBoolTable.lastChild === this.wrong)
+        this.taskBoolTable.lastChild.remove();
+
+        if(key)
+        {
+            this.taskBoolTable.append(this.right);
+        } 
+        else {
+            this.taskBoolTable.append(this.wrong);
+        }
+    }
+}
+
 function newTree(){ //umberOperators,
 
     console.log(numVariables);
@@ -483,17 +568,36 @@ function newTree(){ //umberOperators,
         return 0;
     }
 
+
+
+
     const myTree = new BooleanTree(); // говнокод, надо сделать через document
     myTree.createTree(numVariables, numberOperations); // исправить
 
-    myTree.resultOfFunction(myTree);
-    let SDNF = document.getElementById('SDNF');
-    SDNF.innerHTML = myTree.toSDNF();
-    let SKNF = document.getElementById('SKNF');
-    SKNF.innerHTML = myTree.toSKNF();
 
-    console.log(myTree);
-    console.log(myTree.getString());
+    let tasks = document.getElementsByClassName("tasks");
+    let chosenTasks = document.getElementById("tasks");
+    chosenTasks.innerHTML = null;
+
+    [...tasks].forEach(e => {
+        if(e.checked === true)
+        switch(e.value){
+            case "boolTable":
+                let boolTable = new TaskBoolTable(myTree);
+                chosenTasks.append(boolTable.getTask());
+            default:
+                0;
+        }
+    })
+
+    // myTree.resultOfFunction(myTree);
+    // let SDNF = document.getElementById('SDNF');
+    // SDNF.innerHTML = myTree.toSDNF();
+    // let SKNF = document.getElementById('SKNF');
+    // SKNF.innerHTML = myTree.toSKNF();
+
+    // console.log(myTree);
+    // console.log(myTree.getString());
     print(myTree.getString())
 
 

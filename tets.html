@@ -81,6 +81,13 @@
                 color: #f1ce41;
             }
 
+            input.boolTable[type=text]{
+                width: 2em;
+                height: auto;
+                font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+                font-size: 14px;
+            }
+
             button:hover{
                 background: #f1ce41;
             }
@@ -90,6 +97,9 @@
                 align-items: center;
                 flex-wrap: wrap;
                 gap: 0.5em;
+            }
+            .td-active{
+                background: #f1ce41;
             }
 
             /* input.value{
@@ -119,22 +129,22 @@
 
             <form>
                 <p><legend>Задания:</legend></p>
-                <p><input type="checkbox" value="SDNF"> Привести к СДНФ</p>
-                <p><input type="checkbox" value="SKNF"> <lable>Привести к СКНФ</lable></p>
-                <p><input type="checkbox" value="Zeg"> <lable>Привести к палиному Жегалкина</lable></p>
-                <p><input type="checkbox" value="minSDNF"> <lable>Минимизировать СДНФ</lable></p>
-                <p><input type="checkbox" value="minSKNF"> <lable>Минимизировать СКНФ</lable></p>
-                <p><input type="checkbox" value="bollTable"> <lable>Построить таблицу истинности</lable></p>
-                <p><input type="checkbox" value="falseVar"> <lable>Найти фиктивную переменную</lable></p>
-                <p><input type="checkbox" value="All"> <lable>Выбрать все</lable></p>
+                <p><input type="checkbox" class="tasks" value="SDNF"> <lable>Привести к СДНФ</lable></p>
+                <p><input type="checkbox" class="tasks" value="SKNF"> <lable>Привести к СКНФ</lable></p>
+                <p><input type="checkbox" class="tasks" value="Zeg"> <lable>Привести к полиному Жегалкина</lable></p>
+                <p><input type="checkbox" class="tasks" value="minSDNF"> <lable>Минимизировать СДНФ</lable></p>
+                <p><input type="checkbox" class="tasks" value="minSKNF"> <lable>Минимизировать СКНФ</lable></p>
+                <p><input type="checkbox" class="tasks" value="boolTable"> <lable>Построить таблицу истинности</lable></p>
+                <p><input type="checkbox" class="tasks" value="falseVar"> <lable>Найти фиктивную переменную</lable></p>
+                <p><input type="checkbox" class="tasks" value="All" onclick="selectAll()"> <lable>Выбрать все</lable></p>
             </form>
 
             <div class="vertical-container horizontal-container"> Количество переменных в формуле: 
                 <table>
                     <tbody>
                         <tr>
-                            <td name="variable" onclick="setNumberVariables(3)">3</td>
-                            <td name="variable" onclick="setNumberVariables(4)">4</td>
+                            <td class="variable" name="variable" onclick="setNumberVariables(3)">3</td>
+                            <td class="variable" name="variable" onclick="setNumberVariables(4)">4</td>
                         </tr>
                     </tbody>
                 </table>
@@ -144,10 +154,10 @@
                 <table>
                     <tbody>
                         <tr>
-                            <td onclick="setNumberOperations(2)">2</td>
-                            <td onclick="setNumberOperations(3)">3</td>
-                            <td onclick="setNumberOperations(4)">4</td>
-                            <td onclick="setNumberOperations(5)">5</td>
+                            <td class="operation" onclick="setNumberOperations(2)">2</td>
+                            <td class="operation" onclick="setNumberOperations(3)">3</td>
+                            <td class="operation" onclick="setNumberOperations(4)">4</td>
+                            <td class="operation" onclick="setNumberOperations(5)">5</td>
                         </tr>
                     </tbody>
                 </table>
@@ -156,6 +166,9 @@
            <div><button onclick = "newTree()">Сгенерировать</button></div>
 
             <div id="final"> </div>
+
+            <div id="tasks"></div>
+
             <div id="boolTable"></div>
 
             <div>СДНФ:</div>
