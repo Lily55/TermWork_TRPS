@@ -83,14 +83,26 @@
 
             input.boolTable[type=text]{
                 width: 2em;
+                height: 1em;
+                font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+                font-size: 14px;
+            }
+
+            textarea.SDNF, textarea.SKNF{
+                width: 30em;
                 height: auto;
                 font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
                 font-size: 14px;
             }
 
+            .gotTasks{
+                margin-bottom: 2em;
+            }
+
             button:hover{
                 background: #f1ce41;
             }
+
             p{
                 display: flex;
                 flex-direction: row;
@@ -98,6 +110,7 @@
                 flex-wrap: wrap;
                 gap: 0.5em;
             }
+
             .td-active{
                 background: #f1ce41;
             }
@@ -171,11 +184,6 @@
 
             <div id="boolTable"></div>
 
-            <div>СДНФ:</div>
-            <div id="SDNF"></div>
-
-            <div>СКНФ:</div>
-            <div id="SKNF"></div>
         </div>
 
     </body>
