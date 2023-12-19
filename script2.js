@@ -82,6 +82,9 @@ class BooleanTree extends Tree{
         this.resultOfFunction(this);
         console.log(this.finalResult);
 
+        this.toSDNF();
+        this.toSKNF();
+
     }
 
     //Функция ставит скобки
@@ -145,8 +148,6 @@ class BooleanTree extends Tree{
 
     // Функция идёт по всему дереву
     resultOfFunction(Tree){
-        let boolTable = document.getElementById("boolTable");
-        //boolTable.innerHTML = "<p>" + usedVariables.slice(0,this.variables).join(' ') + " " + "|" + " " + "F" + "</p>";
         let iterations = 0;
         let finalMass = [];
         let clonnedTree = structuredClone(Tree);
@@ -248,10 +249,10 @@ class BooleanTree extends Tree{
         if(finalSDNF.length === 0)
         {
             this.SDNF = null;
-            return "СДНФ не существует";
+            // return "СДНФ не существует";
         }
 
-        return finalSDNF.join(' + ');
+        // return finalSDNF.join(' + ');
     }
 
     disunction(index){
@@ -279,11 +280,11 @@ class BooleanTree extends Tree{
         if(finalSKNF.length === 0)
         {
             this.SKNF = null;
-            return "СКНФ не существует";
+            // return "СКНФ не существует";
         }
         
 
-        return finalSKNF.join(' * ');
+        // return finalSKNF.join(' * ');
     }
 
     conunction(index){
@@ -527,6 +528,24 @@ class TaskBoolTable extends Task{
             return this.task;
     }
 
+    trueResult(boolTable){
+        let iterations = 0;
+        boolTable.innerHTML += "<p>" + usedVariables.slice(0,this.Tree.variables).join(' ') + " " + "|" + " " + "F" + "</p>";
+        if(this.Tree.variables === 3)
+        while(iterations < 8)
+        {
+            boolTable.innerHTML += "<p>" + this.Tree.varTable["A"][iterations] + " " + this.Tree.varTable["B"][iterations] + " " + this.Tree.varTable["C"][iterations] + " " + "|" + " " + this.Tree.finalResult[iterations];
+            iterations++;
+        }
+
+        if(this.Tree.variables === 4)
+        while(iterations < 16)
+        {
+            boolTable.innerHTML += "<p>" + this.Tree.varTable["A"][iterations] + " " + this.Tree.varTable["B"][iterations] + " " + this.Tree.varTable["C"][iterations] + " " + this.Tree.varTable["D"][iterations] + " " + "|" + " " + this.Tree.finalResult[iterations];
+            iterations++;
+        }
+    }
+
     compareResult(){
         let userAnswer = document.getElementsByClassName("boolTable");
         console.log(userAnswer);
@@ -549,8 +568,11 @@ class TaskBoolTable extends Task{
 
         console.log(comparedResult);
 
-        if(this.task.lastChild === this.right || this.task.lastChild === this.wrong)
-        this.task.lastChild.remove();
+        if(this.task.lastChild.previousSibling === this.right || this.task.lastChild.previousSibling === this.wrong)
+        {
+            this.task.lastChild.previousSibling.remove();
+            this.task.lastChild.remove();
+        }
 
         if(key)
         {
@@ -559,6 +581,13 @@ class TaskBoolTable extends Task{
         else {
             this.task.append(this.wrong);
         }
+
+        let table = document.createElement('details');
+        table.innerHTML = "<summary style='color: blue'>Правильный ответ</summary>";
+        this.trueResult(table);
+
+        if(this.task.lastChild != table)
+        this.task.append(table);
     }
 }
 
@@ -574,11 +603,49 @@ class TaskSDNF extends Task{
         example.innerHTML += "<p>Пример записи СДНФ: NOT A*B + C*NOT D</p>";
         this.task.append(example);
         this.task.append(this.button);
+        console.log(this.Tree.SDNF);
         return this.task;
     }
 
+    parse(string){
+        let answer = string.split(' + ');
+        console.log(answer);
+        
+        return answer;
+    }
+
     compareResult(){
-        return 0;
+        let userAnswer = document.getElementsByClassName('SDNF')[0].value;
+        console.log(userAnswer);
+        userAnswer = this.parse(userAnswer);
+        let counter = 0;
+
+        for(let item in userAnswer)
+        {
+            for(let j in this.Tree.SDNF)
+            {
+                if (item === j)
+                counter += 1;
+            }
+        }
+
+        if(this.task.lastChild.previousSibling === this.right || this.task.lastChild.previousSibling === this.wrong)
+        {
+            this.task.lastChild.previousSibling.remove();
+            this.task.lastChild.remove();
+        }
+
+        if(counter === this.Tree.SDNF.length)
+        this.task.append(this.right);
+        else
+        this.task.append(this.wrong);
+
+        let table = document.createElement('details');
+        table.innerHTML = "<summary style='color: blue'>Правильный ответ</summary>";
+        table.innerHTML += '<p>' + this.Tree.SDNF.join(' + ') + '</p>';
+
+        if(this.task.lastChild != table)
+        this.task.append(table);
     }
 }
 
@@ -594,11 +661,49 @@ class TaskSKNF extends Task{
         example.innerHTML += "<p>Пример записи СКНФ: (NOT A+B) * (C+NOT D)</p>";
         this.task.append(example);
         this.task.append(this.button);
+        console.log(this.Tree.SKNF);
         return this.task;
     }
 
+    parse(string){
+        let answer = string.split(' * ');
+        console.log(answer);
+        return answer;
+    }
+
     compareResult(){
-        return 0;
+        let userAnswer = document.getElementsByClassName('SKNF')[0].value;
+        console.log(userAnswer);
+        userAnswer = this.parse(userAnswer);
+        let counter = 0;
+
+        for(let item in userAnswer)
+        {
+            for(let j in this.Tree.SKNF)
+            {
+                if (item === j)
+                counter += 1;
+            }
+        }
+
+        if(this.task.lastChild.previousSibling === this.right || this.task.lastChild.previousSibling === this.wrong)
+        {
+            this.task.lastChild.previousSibling.remove();
+            this.task.lastChild.remove();
+        }
+        
+
+        if(counter === this.Tree.SKNF.length)
+        this.task.append(this.right);
+        else
+        this.task.append(this.wrong);
+
+        let table = document.createElement('details');
+        table.innerHTML = "<summary style='color: blue'>Правильный ответ</summary>";
+        table.innerHTML += '<p>' + this.Tree.SKNF.join(' * ') + '</p>';
+
+        if(this.task.lastChild != table)
+        this.task.append(table);
     }
 }
 
