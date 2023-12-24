@@ -29,6 +29,10 @@ class BooleanTree extends Tree{
         this.finalResult = [];
         this.SDNF = null;
         this.SKNF = null;
+        this.minSDNF = null;
+        this.minSKNF = null;
+        this.basisJeg = null;
+        this.fiktivVariable = null;
     }
 
     //Функция собирает дерево
@@ -84,7 +88,90 @@ class BooleanTree extends Tree{
 
         this.toSDNF();
         this.toSKNF();
+        this.toBasisJeg();
 
+    }
+
+    //Функция преобразует в базис Жегалкина
+    toBasisJeg(){
+        let SDNF = structuredClone(this.SDNF);
+        let basisJeg = [];
+        for(let item = 0; item < SDNF.length; item++)
+        {
+            let change = SDNF[item].split('*');
+            for(let i = 0; i  < change.length; i++)
+            {
+                if(change[i].includes("NOT"))
+                {
+                    change.splice(i,1);
+                    i--;
+                }
+            }
+
+            if(change.length != 0)
+            {
+                SDNF[item] = change.join('*');
+                basisJeg.push(SDNF[item]);
+            }
+
+        }
+        this.basisJeg = basisJeg;
+    }
+
+    //Функция минимизирует СДНФ
+    toMinSDNF(){
+        let SDNF = structuredClone(this.SDNF);
+        let counter =0;
+        for(let i = 0; i<SDNF.length; i++)
+        {
+            let compare = SDNF[i];
+            for(let j = i+1; j < SDNF.length; j++)
+            {
+                if(SDNF[j].length === compare.length +1)
+                for(let k =0; k<compare.length; i++)
+                {
+                    if(SDNF[j][k] === compare[k])
+                    counter++;
+                }
+
+                if(counter === compare.length)
+                {
+                    SDNF.splice(j,1);
+                    j--;
+                    i--;
+                }
+                
+            }
+        }
+        this.minSDNF = SDNF;
+    }
+
+    //Функция минимизирует СКНФ
+    toMinSDNF(){
+        let SKNF = structuredClone(this.SKNF);
+        let counter =0;
+        for(let i = 0; i<SKNF.length; i++)
+        {
+            let compare = SKNF[i];
+            for(let j = i+1; j < SKNF.length; j++)
+            {
+                if(SKNF[j].length === compare.length +1)
+                for(let k =0; k<compare.length; i++)
+                {
+                    if(SKNF[j][k] === compare[k])
+                    counter++;
+                }
+
+                if(counter === compare.length)
+                {
+                    SKNF.splice(j,1);
+                    j--;
+                    i--;
+                }
+                
+            }
+        }
+        this.minSKNF = SKNF;
     }
 
     //Функция ставит скобки
@@ -480,8 +567,15 @@ function setNumberOperations(number){
     numberOperations = number;
 }
 
-class Task{
+class TTask{
+    constructor(){
+        this.Tree = null;
+    };
+}
+
+class Task extends TTask{
     constructor(Tree){
+        super();
         this.Tree = Tree;
         this.task = document.createElement('div');
         this.task.className = "gotTasks";
@@ -497,7 +591,6 @@ class Task{
         this.wrong.style = "color: red";
     }
 }
-
 
 class TaskBoolTable extends Task{
     constructor(Tree){
@@ -528,6 +621,14 @@ class TaskBoolTable extends Task{
             return this.task;
     }
 
+    checkAnswer(userAnswer){
+        for(let i = 0; i < userAnswer.length; i++)
+        {
+            if(userAnswer[i] != '0' || userAnswer[i] != '1')
+            return false;
+        }
+    }
+
     trueResult(boolTable){
         let iterations = 0;
         boolTable.innerHTML += "<p>" + usedVariables.slice(0,this.Tree.variables).join(' ') + " " + "|" + " " + "F" + "</p>";
@@ -549,6 +650,11 @@ class TaskBoolTable extends Task{
     compareResult(){
         let userAnswer = document.getElementsByClassName("boolTable");
         console.log(userAnswer);
+        if(this.checkAnswer(userAnswer) === false)
+        {
+            this.task.append("<div><p>Некорректный ввод</p></div>");
+            return false;
+        }
         let comparedResult = [];
         for(let i = 0; i< userAnswer.length; i++){
             comparedResult.push(parseInt(userAnswer[i].value));
@@ -607,6 +713,18 @@ class TaskSDNF extends Task{
         return this.task;
     }
 
+    checkAnswer(userAnswer){
+        for(let i = 0; i<userAnswer.length; i++)
+        {
+            if(usedVariables.includes(userAnswer[i]) || userAnswer[i]=== '*' || userAnswer[i]=== '+' || userAnswer[i] === ' ')
+            counter++;
+        }
+
+        if(counter != userAnswer.length)
+        return false;
+        else return true;
+    }
+
     parse(string){
         let answer = string.split(' + ');
         console.log(answer);
@@ -617,16 +735,19 @@ class TaskSDNF extends Task{
     compareResult(){
         let userAnswer = document.getElementsByClassName('SDNF')[0].value;
         console.log(userAnswer);
+        if(this.checkAnswer(userAnswer) === false)
+        {
+            this.task.append("<div><p>Некорректная строка</p></div>");
+            return false;
+        }
         userAnswer = this.parse(userAnswer);
         let counter = 0;
 
-        for(let item in userAnswer)
+        if(userAnswer.length === this.Tree.SDNF.length)
+        for(let i = 0; i < userAnswer.length; i++)
         {
-            for(let j in this.Tree.SDNF)
-            {
-                if (item === j)
-                counter += 1;
-            }
+            if(userAnswer[i] == this.Tree.SDNF[i])
+            counter++
         }
 
         if(this.task.lastChild.previousSibling === this.right || this.task.lastChild.previousSibling === this.wrong)
@@ -665,6 +786,18 @@ class TaskSKNF extends Task{
         return this.task;
     }
 
+    checkAnswer(userAnswer){
+        for(let i = 0; i<userAnswer.length; i++)
+        {
+            if(usedVariables.includes(userAnswer[i]) || userAnswer[i]=== '*' || userAnswer[i]=== '+' || userAnswer[i] === ' ' || userAnswer === '(' || userAnswer === ')')
+            counter++;
+        }
+
+        if(counter != userAnswer.length)
+        return false;
+        else return true;
+    }
+
     parse(string){
         let answer = string.split(' * ');
         console.log(answer);
@@ -677,13 +810,11 @@ class TaskSKNF extends Task{
         userAnswer = this.parse(userAnswer);
         let counter = 0;
 
-        for(let item in userAnswer)
+        if(userAnswer.length === this.Tree.SKNF.length)
+        for(let i = 0; i < userAnswer.length; i++)
         {
-            for(let j in this.Tree.SKNF)
-            {
-                if (item === j)
-                counter += 1;
-            }
+            if(userAnswer[i] == this.Tree.SKNF[i])
+            counter++
         }
 
         if(this.task.lastChild.previousSibling === this.right || this.task.lastChild.previousSibling === this.wrong)
@@ -701,6 +832,242 @@ class TaskSKNF extends Task{
         let table = document.createElement('details');
         table.innerHTML = "<summary style='color: blue'>Правильный ответ</summary>";
         table.innerHTML += '<p>' + this.Tree.SKNF.join(' * ') + '</p>';
+
+        if(this.task.lastChild != table)
+        this.task.append(table);
+    }
+}
+
+class TaskFiktivVariable extends Task{
+    constructor(Tree){
+        super(Tree);
+    }
+
+    getTask(){
+        this.task.innerHTML += "<p>Напишите фиктивную переменную функции:</p>";
+        this.task.innerHTML += "<p>Фиктивная переменная: <input class='fiktivVariable' type='text'></input></p>";
+        let example = document.createElement('div');
+        example.innerHTML += "<p>Пример записи фиктивной переменной: A</p>";
+        this.task.append(example);
+        this.task.append(this.button);
+        return this.task;
+    }
+}
+
+class TaskJeg extends Task{
+    constructor(Tree){
+        super(Tree);
+    }
+
+    getTask(){
+        this.task.innerHTML += "<p>Напишите функцию в базисе Жегалкина:</p>";
+        this.task.innerHTML += "<p>Функция в базисе Жегалкина: <textarea class='basisJeg'></textarea></p>";
+        let example = document.createElement('div');
+        example.innerHTML += "<p>Пример записи функции в базисе Жегалкина: A XOR B*C</p>";
+        this.task.append(example);
+        this.task.append(this.button);
+        console.log(this.Tree.basisJeg);
+        return this.task;
+    }
+
+    checkAnswer(userAnswer){
+        for(let i = 0; i<userAnswer.length; i++)
+        {
+            if(usedVariables.includes(userAnswer[i]) || userAnswer[i]=== '*' ||  userAnswer[i] === ' ' || userAnswer === 'XOR')
+            counter++;
+        }
+
+        if(counter != userAnswer.length)
+        return false;
+        else return true;
+    }
+
+    parse(string){
+        let answer = string.split(' XOR ');
+        console.log(answer);
+        
+        return answer;
+    }
+
+    compareResult(){
+        let userAnswer = document.getElementsByClassName('basisJeg')[0].value;
+        console.log(userAnswer);
+        if(this.checkAnswer(userAnswer) === false)
+        {
+            this.task.append("<div><p>Некорректная строка</p></div>");
+            return false;
+        }
+        userAnswer = this.parse(userAnswer);
+        let counter = 0;
+
+        if(userAnswer.length === this.Tree.basisJeg.length)
+        for(let i = 0; i < userAnswer.length; i++)
+        {
+            if(userAnswer[i] == this.Tree.basisJeg[i])
+            counter++
+        }
+
+        if(this.task.lastChild.previousSibling === this.right || this.task.lastChild.previousSibling === this.wrong)
+        {
+            this.task.lastChild.previousSibling.remove();
+            this.task.lastChild.remove();
+        }
+
+        if(counter === this.Tree.basisJeg.length)
+        this.task.append(this.right);
+        else
+        this.task.append(this.wrong);
+
+        let table = document.createElement('details');
+        table.innerHTML = "<summary style='color: blue'>Правильный ответ</summary>";
+        table.innerHTML += '<p>' + this.Tree.basisJeg.join(' XOR ') + '</p>';
+
+        if(this.task.lastChild != table)
+        this.task.append(table);
+    }
+
+}
+
+class TaskMinSDNF extends Task{
+    constructor(Tree){
+        super(Tree);
+    }
+
+    getTask(){
+        this.task.innerHTML += "<p>Напишите минимальну ДНФ функции:</p>";
+        this.task.innerHTML += "<p>Минимальная ДНФ: <textarea class='minSDNF'></textarea></p>";
+        let example = document.createElement('div');
+        example.innerHTML += "<p>Пример записи минимальной ДНФ: NOT A*B + C*NOT D</p>";
+        this.task.append(example);
+        this.task.append(this.button);
+        console.log(this.Tree.minSDNF);
+        return this.task;
+    }
+
+    checkAnswer(userAnswer){
+        for(let i = 0; i<userAnswer.length; i++)
+        {
+            if(usedVariables.includes(userAnswer[i]) || userAnswer[i]=== '*' || userAnswer[i]=== '+' || userAnswer[i] === ' ')
+            counter++;
+        }
+
+        if(counter != userAnswer.length)
+        return false;
+        else return true;
+    }
+
+    parse(string){
+        let answer = string.split(' * ');
+        console.log(answer);
+        
+        return answer;
+    }
+
+    compareResult(){
+        let userAnswer = document.getElementsByClassName('minSDNF')[0].value;
+        console.log(userAnswer);
+        if(this.checkAnswer(userAnswer) === false)
+        {
+            this.task.append("<div><p>Некорректная строка</p></div>");
+            return false;
+        }
+        userAnswer = this.parse(userAnswer);
+        let counter = 0;
+
+        if(userAnswer.length === this.Tree.minSDNF.length)
+        for(let i = 0; i < userAnswer.length; i++)
+        {
+            if(userAnswer[i] == this.Tree.minSDNF[i])
+            counter++
+        }
+
+        if(this.task.lastChild.previousSibling === this.right || this.task.lastChild.previousSibling === this.wrong)
+        {
+            this.task.lastChild.previousSibling.remove();
+            this.task.lastChild.remove();
+        }
+
+        if(counter === this.Tree.minSDNF.length)
+        this.task.append(this.right);
+        else
+        this.task.append(this.wrong);
+
+        let table = document.createElement('details');
+        table.innerHTML = "<summary style='color: blue'>Правильный ответ</summary>";
+        table.innerHTML += '<p>' + this.Tree.minSDNF.join(' + ') + '</p>';
+
+        if(this.task.lastChild != table)
+        this.task.append(table);
+    }
+}
+
+class TaskMinSKNF extends Task{
+    constructor(Tree){
+        super(Tree);
+    }
+
+    getTask(){
+        this.task.innerHTML += "<p>Напишите минимальну КНФ функции:</p>";
+        this.task.innerHTML += "<p>Минимальная КНФ: <textarea class='minSKNF'></textarea></p>";
+        let example = document.createElement('div');
+        example.innerHTML += "<p>Пример записи минимальной КНФ: (NOT A+B) * (C+NOT D)</p>";
+        this.task.append(example);
+        this.task.append(this.button);
+        console.log(this.Tree.minSKNF);
+        return this.task;
+    }
+
+    checkAnswer(userAnswer){
+        for(let i = 0; i<userAnswer.length; i++)
+        {
+            if(usedVariables.includes(userAnswer[i]) || userAnswer[i]=== '*' || userAnswer[i]=== '+' || userAnswer[i] === ' ' || userAnswer === '(' || userAnswer === ')')
+            counter++;
+        }
+
+        if(counter != userAnswer.length)
+        return false;
+        else return true;
+    }
+
+    parse(string){
+        let answer = string.split(' + ');
+        console.log(answer);
+        
+        return answer;
+    }
+
+    compareResult(){
+        let userAnswer = document.getElementsByClassName('minSKNF')[0].value;
+        console.log(userAnswer);
+        if(this.checkAnswer(userAnswer) === false)
+        {
+            this.task.append("<div><p>Некорректная строка</p></div>");
+            return false;
+        }
+        userAnswer = this.parse(userAnswer);
+        let counter = 0;
+
+        if(userAnswer.length === this.Tree.minSKNF.length)
+        for(let i = 0; i < userAnswer.length; i++)
+        {
+            if(userAnswer[i] == this.Tree.minSKNF[i])
+            counter++
+        }
+
+        if(this.task.lastChild.previousSibling === this.right || this.task.lastChild.previousSibling === this.wrong)
+        {
+            this.task.lastChild.previousSibling.remove();
+            this.task.lastChild.remove();
+        }
+
+        if(counter === this.Tree.minSKNF.length)
+        this.task.append(this.right);
+        else
+        this.task.append(this.wrong);
+
+        let table = document.createElement('details');
+        table.innerHTML = "<summary style='color: blue'>Правильный ответ</summary>";
+        table.innerHTML += '<p>' + this.Tree.minSKNF.join(' * ') + '</p>';
 
         if(this.task.lastChild != table)
         this.task.append(table);
@@ -730,6 +1097,7 @@ function newTree(){ //umberOperators,
 
 
     let tasks = document.getElementsByClassName("tasks");
+    let counter = 0;
     let chosenTasks = document.getElementById("tasks");
     chosenTasks.innerHTML = null;
 
@@ -739,29 +1107,40 @@ function newTree(){ //umberOperators,
             case "boolTable":
                 let boolTable = new TaskBoolTable(myTree);
                 chosenTasks.append(boolTable.getTask());
+                counter++;
                 break;
             case "SDNF":
                 let SDNF = new TaskSDNF(myTree);
                 chosenTasks.append(SDNF.getTask());
+                counter++;
                 break;
             case "SKNF":
                 let SKNF = new TaskSKNF(myTree);
                 chosenTasks.append(SKNF.getTask());
+                counter++;
+                break;
+            case "fiktivVar":
+                let fiktivVariable = new TaskFiktivVariable(myTree);
+                chosenTasks.append(fiktivVariable.getTask());
+                counter++;
+                break;
+            case "Zeg":
+                let basisJeg = new TaskJeg(myTree);
+                chosenTasks.append(basisJeg.getTask());
+                counter++;
                 break;
             default:
                 0;
         }
     })
 
-    // myTree.resultOfFunction(myTree);
-    // let SDNF = document.getElementById('SDNF');
-    // SDNF.innerHTML = myTree.toSDNF();
-    // let SKNF = document.getElementById('SKNF');
-    // SKNF.innerHTML = myTree.toSKNF();
+    if(counter === 0)
+    {
+        alert("Ни одного задания не выбрано!");
+        return 0;
+    }
 
-    // console.log(myTree);
-    // console.log(myTree.getString());
-    print(myTree.getString())
+    print(myTree.getString());
 
 
 }
