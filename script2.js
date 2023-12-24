@@ -4,8 +4,14 @@ const usedVariables = ["A", "B", "C", "D"];//
 const symbols = operators + usedVariables;
 const boolValues = [0,1];
 
-class Node{
+class TNode{
+    constructor(){
+    }
+}
+
+class Node extends TNode{
     constructor(value){
+        super();
         this.value = value;
         this.left = null;
         this.right = null;
@@ -13,14 +19,14 @@ class Node{
 }
 
 
-class Tree{
+class TBooleanTree{
 
     constructor(){
         this.root = null;       
     }
 }
 
-class BooleanTree extends Tree{
+class BooleanTree extends TBooleanTree{
     constructor(){
         super();
         this.operations = null;
@@ -89,7 +95,55 @@ class BooleanTree extends Tree{
         this.toSDNF();
         this.toSKNF();
         this.toBasisJeg();
+        this.toMinSDNF();
+        this.toMinSKNF();
+        this.searchFiktivVariable();
+    }
 
+    //Функция находит фиктивную переменную
+    searchFiktivVariable(){
+        let minSDNF = structuredClone(this.minSDNF);
+        let counterA = 0;
+        let counterB = 0;
+        let counterC = 0;
+
+        if(this.variables === 4);
+        let counterD =0;
+
+        for(let i = 0; i < minSDNF.length; i++)
+        {
+            compare = minSDNF[i].split('*');
+            for(let j =0; j < compare.length ; i++)
+            {
+                if(compare[i] === 'A')
+                counterA++;
+
+                if(compare[i] === 'B')
+                counterB++;
+
+                if(compare[i] === 'C')
+                counterC++;
+
+                if(this.variables === 4)
+                {
+                    if(compare[i] === 'D')
+                    counterD++;
+                }
+            }
+        }
+
+        if(counterA === 0)
+        this.fiktivVariable.push('A');
+
+        if(counterB === 0)
+        this.fiktivVariable.push('B');
+
+        if(counterC === 0)
+        this.fiktivVariable.push('C');
+
+        if(this.variables === 4)
+        if(counterD === 0)
+        this.fiktivVariable.push('A');
     }
 
     //Функция преобразует в базис Жегалкина
@@ -147,7 +201,7 @@ class BooleanTree extends Tree{
     }
 
     //Функция минимизирует СКНФ
-    toMinSDNF(){
+    toMinSKNF(){
         let SKNF = structuredClone(this.SKNF);
         let counter =0;
         for(let i = 0; i<SKNF.length; i++)
@@ -622,6 +676,7 @@ class TaskBoolTable extends Task{
     }
 
     checkAnswer(userAnswer){
+        let counter = 0;
         for(let i = 0; i < userAnswer.length; i++)
         {
             if(userAnswer[i] != '0' || userAnswer[i] != '1')
@@ -714,6 +769,7 @@ class TaskSDNF extends Task{
     }
 
     checkAnswer(userAnswer){
+        let counter = 0;
         for(let i = 0; i<userAnswer.length; i++)
         {
             if(usedVariables.includes(userAnswer[i]) || userAnswer[i]=== '*' || userAnswer[i]=== '+' || userAnswer[i] === ' ')
@@ -787,6 +843,7 @@ class TaskSKNF extends Task{
     }
 
     checkAnswer(userAnswer){
+        let counter = 0;
         for(let i = 0; i<userAnswer.length; i++)
         {
             if(usedVariables.includes(userAnswer[i]) || userAnswer[i]=== '*' || userAnswer[i]=== '+' || userAnswer[i] === ' ' || userAnswer === '(' || userAnswer === ')')
@@ -807,6 +864,11 @@ class TaskSKNF extends Task{
     compareResult(){
         let userAnswer = document.getElementsByClassName('SKNF')[0].value;
         console.log(userAnswer);
+        if(this.checkAnswer(userAnswer) === false)
+        {
+            this.task.append("<div><p>Некорректная строка</p></div>");
+            return false;
+        }
         userAnswer = this.parse(userAnswer);
         let counter = 0;
 
@@ -852,6 +914,41 @@ class TaskFiktivVariable extends Task{
         this.task.append(this.button);
         return this.task;
     }
+
+    check(userAnswer)
+    {
+        if(usedVariables.includes(userAnswer))
+        return true;
+        else return false;
+    }
+
+    compareResult(){
+        let userAnswer = document.getElementsByClassName('fiktivVariable')[0].value;
+        if(this.checkAnswer(userAnswer) === false)
+        {
+            this.task.append("<div><p>Некорректная строка</p></div>");
+            return false;
+        }
+
+        if(this.task.lastChild.previousSibling === this.right || this.task.lastChild.previousSibling === this.wrong)
+        {
+            this.task.lastChild.previousSibling.remove();
+            this.task.lastChild.remove();
+        }
+        
+
+        if(userAnswer === this.Tree.fiktivVariable)
+        this.task.append(this.right);
+        else
+        this.task.append(this.wrong);
+
+        let table = document.createElement('details');
+        table.innerHTML = "<summary style='color: blue'>Правильный ответ</summary>";
+        table.innerHTML += '<p>' + this.Tree.fiktivVariable + '</p>';
+
+        if(this.task.lastChild != table)
+        this.task.append(table);
+    }
 }
 
 class TaskJeg extends Task{
@@ -871,6 +968,7 @@ class TaskJeg extends Task{
     }
 
     checkAnswer(userAnswer){
+        let counter = 0;
         for(let i = 0; i<userAnswer.length; i++)
         {
             if(usedVariables.includes(userAnswer[i]) || userAnswer[i]=== '*' ||  userAnswer[i] === ' ' || userAnswer === 'XOR')
@@ -945,6 +1043,7 @@ class TaskMinSDNF extends Task{
     }
 
     checkAnswer(userAnswer){
+        let counter = 0;
         for(let i = 0; i<userAnswer.length; i++)
         {
             if(usedVariables.includes(userAnswer[i]) || userAnswer[i]=== '*' || userAnswer[i]=== '+' || userAnswer[i] === ' ')
@@ -1018,6 +1117,7 @@ class TaskMinSKNF extends Task{
     }
 
     checkAnswer(userAnswer){
+        let counter = 0;
         for(let i = 0; i<userAnswer.length; i++)
         {
             if(usedVariables.includes(userAnswer[i]) || userAnswer[i]=== '*' || userAnswer[i]=== '+' || userAnswer[i] === ' ' || userAnswer === '(' || userAnswer === ')')
@@ -1074,6 +1174,60 @@ class TaskMinSKNF extends Task{
     }
 }
 
+class Tasks{
+    constructor(){
+
+    }
+
+    getTasks(tasks, chosenTasks, myTree){
+        let counter = 0;
+        [...tasks].forEach(e => {
+            if(e.checked === true)
+            switch(e.value){
+                case "boolTable":
+                    let boolTable = new TaskBoolTable(myTree);
+                    chosenTasks.append(boolTable.getTask());
+                    counter++;
+                    break;
+                case "SDNF":
+                    let SDNF = new TaskSDNF(myTree);
+                    chosenTasks.append(SDNF.getTask());
+                    counter++;
+                    break;
+                case "SKNF":
+                    let SKNF = new TaskSKNF(myTree);
+                    chosenTasks.append(SKNF.getTask());
+                    counter++;
+                    break;
+                case "fiktivVar":
+                    let fiktivVariable = new TaskFiktivVariable(myTree);
+                    chosenTasks.append(fiktivVariable.getTask());
+                    counter++;
+                    break;
+                case "Zeg":
+                    let basisJeg = new TaskJeg(myTree);
+                    chosenTasks.append(basisJeg.getTask());
+                    counter++;
+                    break;
+                case "minSDNF":
+                    let minSDNF = new TaskMinSDNF(myTree);
+                    chosenTasks.append(minSDNF.getTask());
+                    counter++;
+                    break;
+                case "minSKNF":
+                    let minSKNF = new TaskMinSKNF(myTree);
+                    chosenTasks.append(minSKNF.getTask());
+                    counter++;
+                    break;
+                default:
+                    0;
+            }
+        })
+
+        return counter;
+    }
+}
+
 function newTree(){ //umberOperators,
 
     console.log(numVariables);
@@ -1100,39 +1254,8 @@ function newTree(){ //umberOperators,
     let counter = 0;
     let chosenTasks = document.getElementById("tasks");
     chosenTasks.innerHTML = null;
-
-    [...tasks].forEach(e => {
-        if(e.checked === true)
-        switch(e.value){
-            case "boolTable":
-                let boolTable = new TaskBoolTable(myTree);
-                chosenTasks.append(boolTable.getTask());
-                counter++;
-                break;
-            case "SDNF":
-                let SDNF = new TaskSDNF(myTree);
-                chosenTasks.append(SDNF.getTask());
-                counter++;
-                break;
-            case "SKNF":
-                let SKNF = new TaskSKNF(myTree);
-                chosenTasks.append(SKNF.getTask());
-                counter++;
-                break;
-            case "fiktivVar":
-                let fiktivVariable = new TaskFiktivVariable(myTree);
-                chosenTasks.append(fiktivVariable.getTask());
-                counter++;
-                break;
-            case "Zeg":
-                let basisJeg = new TaskJeg(myTree);
-                chosenTasks.append(basisJeg.getTask());
-                counter++;
-                break;
-            default:
-                0;
-        }
-    })
+    let TaskList = new Tasks();
+    counter = TaskList.getTasks(tasks, chosenTasks, myTree);
 
     if(counter === 0)
     {
